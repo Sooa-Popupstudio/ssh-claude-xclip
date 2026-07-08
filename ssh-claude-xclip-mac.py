@@ -131,7 +131,6 @@ def watcher():
                     rpaths.append(rpath)
                 text = "\n".join(rp + PATH_SUFFIX for rp in rpaths)
                 last = jxa(JXA_SET_TEXT, text) or last
-                notify(f"{len(rpaths)}개 업로드: {rpaths[-1]}")
                 continue
 
             # (2) 이미지 "데이터"가 클립보드에 (스크린샷 캡쳐, 브라우저 이미지 복사 등)
@@ -145,7 +144,6 @@ def watcher():
             # 클립보드에 이미지 + 경로 텍스트를 함께 담고, 우리가 만든 변경은 무시
             last = jxa(JXA_REWRITE, tmp, rpath + PATH_SUFFIX) or last
             os.unlink(tmp)
-            notify(rpath)
         except Exception:
             pass
 
