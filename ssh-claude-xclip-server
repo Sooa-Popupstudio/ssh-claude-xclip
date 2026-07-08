@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# ssh-claude-xclip-server — 가짜 xclip (서버 쪽 절반).
+# ~/.local/bin/xclip 으로 심링크해서 쓴다. Claude Code는 클립보드를 읽을 때 "xclip"이라는
+# 고정된 명령을 실행하므로, 그 이름을 가로채야 한다.
+#
+# 원리: 맥 데몬(ssh-claude-xclip-mac.py)이 이미지 복사 시 자동으로 /tmp/clip-*.png 를
+# 서버에 밀어 올려두므로, Ctrl+V 시점엔 그중 최신 파일을 읽어 클립보드 이미지인 척 내준다.
+# → 리스닝 포트·SSH 터널 없이 동작 (업로드는 평범한 아웃바운드 ssh).
+#
+# 알아둘 것:
+#  - 텍스트 미지원: Ctrl+V 텍스트는 터미널이 직접 붙여넣으므로 실사용 영향 없음
+#  - 복사 직후 업로드가 끝나기 전(1~2초)에 붙여넣으면 최대 WAIT초 기다렸다가 포기
+#    → 맥 알림(경로 표시)이 뜬 뒤 붙여넣으면 확실하다
+#  - 데몬이 죽어 있으면 옛 이미지를 조용히 첨부할 수 있어, MAX_AGE보다 오래된 파일은
+#    "클립보드 비어 있음"으로 취급한다
+DIR="${SSH_CLAUDE_XCLIP_DIR:-/tmp}"
+MAX_AGE="${SSH_CLAUDE_XCLIP_MAX_AGE:-600}"  # 초. 이보다 오래된 clip 파일은 무시
+WAIT="${SSH_CLAUDE_XCLIP_WAIT:-3}"          # 초. png 요청 시 업로드 완료를 이만큼까지 대기
+
+# 최신순으로 훑되 "내가 소유한" 첫 파일만 — 여러 계정이 같은 /tmp 를 써도 남의 캡쳐를 집지 않게
+newest() {
+  local f
+  for f in $(ls -t "$DIR"/clip-*.png 2>/dev/null); do
+    [ -O "$f" ] && { echo "$f"; return; }
+  done
+}
+fresh() { [ -n "$1" ] && [ $(( $(date +%s) - $(stat -c %Y "$1" 2>/dev/null || echo 0) )) -le "$MAX_AGE" ]; }
+# ssh cat > 업로드는 파일이 조금씩 자라므로, PNG 끝 8바이트(IEND 청크)로 완료 여부 확인
+complete() { [ "$(tail -c 8 -- "$1" 2>/dev/null | od -An -tx1 | tr -d ' \n')" = "49454e44ae426082" ]; }
+
+type="text/plain"; out=0
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -t|-target) type="$2"; shift ;;
+    -o|-out) out=1 ;;
+    -selection|-sel|-selectio|-selecti|-select|-selec|-sele) shift ;;  # clipboard/primary — 무시
+    -i|-in) cat >/dev/null; exit 0 ;;  # 쓰기 방향(복사)은 미지원 — 조용히 통과
+  esac
+  shift
+done
+[ "$out" = 1 ] || { cat >/dev/null; exit 0; }
+
+case "$type" in
+  TARGETS)  # 즉답 (대기 없음): 신선한 clip 파일이 있으면 이미지 있다고 알림
+    if fresh "$(newest)"; then printf 'TARGETS\nimage/png\n'; else printf 'TARGETS\n'; fi ;;
+  image/png)
+    end=$(( SECONDS + WAIT ))
+    while :; do
+      f=$(newest)
+      if fresh "$f" && complete "$f"; then exec cat -- "$f"; fi
+      [ "$SECONDS" -ge "$end" ] && exit 1
+      sleep 0.2
+    done ;;
+  image/*) exit 1 ;;  # bmp 등 미지원 → png 경로만 쓰이게
+  *) exit 1 ;;        # 텍스트는 이 방식으로 못 가져옴 — 터미널 붙여넣기가 처리
+esac

@@ -1,0 +1,19 @@
+{
+  "name": "ssh-claude-xclip-vscode",
+  "displayName": "SSH Claude Xclip Path Paste",
+  "description": "Type the ssh-claude-xclip-uploaded image path into the active terminal (no paste event, so Claude Code keeps it as text)",
+  "version": "0.0.1",
+  "publisher": "sooa",
+  "engines": { "vscode": "^1.85.0" },
+  "extensionKind": ["ui"],
+  "main": "./extension.js",
+  "activationEvents": [],
+  "contributes": {
+    "commands": [
+      { "command": "ssh-claude-xclip.pastePath", "title": "SSH Claude Xclip: Paste Image Path into Terminal" }
+    ],
+    "keybindings": [
+      { "command": "ssh-claude-xclip.pastePath", "key": "cmd+shift+v", "when": "terminalFocus" }
+    ]
+  }
+}
