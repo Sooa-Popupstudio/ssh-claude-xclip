@@ -106,6 +106,28 @@ def upload(local_path, rpath):
         subprocess.run(["ssh", REMOTE, f"cat > {rpath}"],
                        stdin=f, capture_output=True, timeout=60, check=True)
 
+def upload_parallel(pairs):
+    # pairs: [(local_path, rpath), ...] — ssh 업로드를 전부 동시에 띄우고 한꺼번에 기다린다.
+    # N개를 순차로 올리면 N배 걸리지만, 병렬이면 대략 한 장 올리는 시간이면 끝난다.
+    # 성공(exit 0)한 rpath만 원래 순서대로 돌려준다.
+    jobs = []
+    for lp, rpath in pairs:
+        fh = open(lp, "rb")
+        p = subprocess.Popen(["ssh", REMOTE, f"cat > {rpath}"],
+                             stdin=fh, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        jobs.append((p, fh, rpath))
+    ok = []
+    for p, fh, rpath in jobs:
+        try:
+            rc = p.wait(timeout=60)
+        except subprocess.TimeoutExpired:
+            p.kill()
+            rc = 1
+        fh.close()
+        if rc == 0:
+            ok.append(rpath)
+    return ok
+
 # ── 클립보드 감시 → 자동 업로드 + 경로 병기 ─────────────────
 def watcher():
     last = jxa(JXA_COUNT)
@@ -123,14 +145,12 @@ def watcher():
                      if p.lower().endswith(IMG_EXTS) and os.path.isfile(p)]
             if files:
                 ts = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-                rpaths = []
-                for i, lp in enumerate(files):
-                    ext = os.path.splitext(lp)[1].lower()
-                    rpath = f"/tmp/clip-{ts}-{i}{ext}"
-                    upload(lp, rpath)
-                    rpaths.append(rpath)
-                text = "\n".join(rp + PATH_SUFFIX for rp in rpaths)
-                last = jxa(JXA_SET_TEXT, text) or last
+                pairs = [(lp, f"/tmp/clip-{ts}-{i}{os.path.splitext(lp)[1].lower()}")
+                         for i, lp in enumerate(files)]
+                rpaths = upload_parallel(pairs)  # 전부 동시에 올림
+                if rpaths:
+                    text = "\n".join(rp + PATH_SUFFIX for rp in rpaths)
+                    last = jxa(JXA_SET_TEXT, text) or last
                 continue
 
             # (2) 이미지 "데이터"가 클립보드에 (스크린샷 캡쳐, 브라우저 이미지 복사 등)
