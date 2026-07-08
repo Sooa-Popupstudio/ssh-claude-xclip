@@ -22,6 +22,8 @@
 별칭이 `popup-server`가 아니면 plist 설치 후 `EnvironmentVariables`에
 `SSH_CLAUDE_XCLIP_REMOTE=<별칭>`을 추가한다.
 
+**맥에서**
+
 ```bash
 git clone https://github.com/Sooa-Popupstudio/ssh-claude-xclip.git /tmp/ssh-claude-xclip
 cd /tmp/ssh-claude-xclip
@@ -34,8 +36,8 @@ launchctl load ~/Library/LaunchAgents/ai.popup.ssh-claude-xclip.plist
 cp -r ssh-claude-xclip-vscode ~/.vscode/extensions/
 ```
 
+**서버에서**
 ```bash
-# ── 서버에서 (계정당 1회) ──────────────────────────────
 git clone https://github.com/Sooa-Popupstudio/ssh-claude-xclip.git ~/ssh-claude-xclip
 ln -sf ~/ssh-claude-xclip/ssh-claude-xclip-server ~/.local/bin/xclip
 ```
