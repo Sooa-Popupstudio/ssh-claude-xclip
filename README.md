@@ -23,19 +23,15 @@
 `SSH_CLAUDE_XCLIP_REMOTE=<별칭>`을 추가한다.
 
 ```bash
-# ── 맥에서 (한번에 복사 후 붙여넣은 후 enter) ──────────────
 git clone https://github.com/Sooa-Popupstudio/ssh-claude-xclip.git /tmp/ssh-claude-xclip
 cd /tmp/ssh-claude-xclip
 
-# 1) 데몬 + launchd 등록 (캡쳐 감지 → 자동 업로드 담당)
 mkdir -p ~/bin && cp ssh-claude-xclip-mac.py ~/bin/
 cp ai.popup.ssh-claude-xclip.plist ~/Library/LaunchAgents/
 sed -i '' "s/YOURNAME/$(whoami)/" ~/Library/LaunchAgents/ai.popup.ssh-claude-xclip.plist
 launchctl load ~/Library/LaunchAgents/ai.popup.ssh-claude-xclip.plist
 
-# 2) 미니 VS Code 확장 (Cmd+Shift+V 경로 타이핑 담당 — Cmd+V만 쓸 거면 생략 가능)
 cp -r ssh-claude-xclip-vscode ~/.vscode/extensions/
-# 이후 VS Code 완전 종료(Cmd+Q) 후 다시 실행
 ```
 
 ```bash
