@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+# ssh-claude-xclip-update — 이미 설치한 사람용 원터치 업데이트.
+#   맥에서 실행: 최신 파일을 받아 설치 위치(~/bin, ~/.vscode/extensions)에 덮고 데몬 재기동.
+#   서버에서 실행: repo clone에서 git pull (가짜 xclip 심링크가 새 파일을 자동 반영).
+# 실행 위치(맥/서버)는 uname으로 자동 판별한다.
+set -euo pipefail
+REPO="${SSH_CLAUDE_XCLIP_REPO:-https://github.com/Sooa-Popupstudio/ssh-claude-xclip.git}"
+
+if [ "$(uname)" = "Darwin" ]; then
+  # ── 맥: 파일을 "복사"해 설치했으므로 새로 받아 덮어쓴다 ──
+  tmp="$(mktemp -d)"
+  trap 'rm -rf "$tmp"' EXIT
+  git clone -q "$REPO" "$tmp/repo"
+
+  mkdir -p ~/bin
+  cp "$tmp/repo/ssh-claude-xclip-mac.py" ~/bin/
+  rm -rf ~/.vscode/extensions/ssh-claude-xclip-vscode
+  cp -r "$tmp/repo/ssh-claude-xclip-vscode" ~/.vscode/extensions/
+  # plist는 설치 때 사용자명이 박혀 있어 덮지 않는다 (바뀔 일 거의 없음)
+
+  plist=~/Library/LaunchAgents/ai.popup.ssh-claude-xclip.plist
+  launchctl unload "$plist" 2>/dev/null || true
+  launchctl load "$plist"
+  echo "✅ 맥 업데이트 완료. VS Code에서 'Developer: Reload Window'로 확장까지 반영하세요."
+else
+  # ── 서버: xclip이 clone을 가리키는 심링크라 pull만 하면 끝 ──
+  dir="$HOME/ssh-claude-xclip"
+  if [ -d "$dir/.git" ]; then
+    git -C "$dir" pull -q --ff-only
+    echo "✅ 서버 업데이트 완료 ($dir)."
+  else
+    echo "⚠️  서버 clone($dir)이 없습니다. README 설치법(2)대로 clone 후 심링크하세요."
+    exit 1
+  fi
+fi

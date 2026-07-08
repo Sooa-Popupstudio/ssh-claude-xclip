@@ -58,5 +58,17 @@ ln -sf ~/ssh-claude-xclip/ssh-claude-xclip-server ~/.local/bin/xclip
 
 설치 확인: 캡쳐 한 번 → "ssh-claude-xclip" 타이틀의 맥 알림에 경로가 뜨면 성공.
 
+## 업데이트
+
+이미 설치한 사람은 **맥에서** 아래 한 줄이면 최신으로 갱신된다 (파일 덮어쓰기 + 데몬 재기동).
+실행 후 VS Code에서 `Developer: Reload Window`로 확장까지 반영:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Sooa-Popupstudio/ssh-claude-xclip/main/ssh-claude-xclip-update | bash
+```
+
+서버 쪽(가짜 xclip)도 갱신하려면 **서버에서** 같은 한 줄을 실행하거나 `git -C ~/ssh-claude-xclip pull`.
+(스크립트가 맥/서버를 자동 판별한다. plist는 사용자명이 박혀 있어 덮지 않으니, plist가 바뀐 릴리스면 그때만 수동 재설치.)
+
 제거: 서버 `rm ~/.local/bin/xclip`, 맥 `launchctl unload ~/Library/LaunchAgents/ai.popup.ssh-claude-xclip.plist`
 후 plist·`~/bin/ssh-claude-xclip-mac.py`·확장 폴더 삭제.
