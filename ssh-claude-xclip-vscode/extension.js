@@ -7,10 +7,12 @@ function activate(context) {
       const text = (await vscode.env.clipboard.readText()).trim();
       const term = vscode.window.activeTerminal;
       if (!term) { return; }
-      // 데몬이 붙인 :1 접미사는 떼고 순수 경로만 타이핑 (sendText는 붙여넣기가 아니라
-      // 타이핑이라 Claude Code가 [Image #N]으로 변환하지 않는다)
-      const m = text.match(/^(\/tmp\/clip-[\w.-]+\.png)/);
-      const out = m ? m[1] : text;
+      // 데몬이 넣어둔 경로들(파일 여러 개면 여러 줄)을 모두 뽑아 공백으로 이어 타이핑.
+      // 확장자는 png까지만 매칭해 :1 접미사를 자연히 떼고, sendText는 붙여넣기가 아니라
+      // 타이핑이라 Claude Code가 [Image #N]으로 변환하지 않는다.
+      const re = /\/tmp\/clip-[\w.-]+\.(?:png|jpe?g|gif|bmp|tiff?|webp|heic|heif)/gi;
+      const paths = text.match(re);
+      const out = paths ? paths.join(' ') : text;
       if (out) { term.sendText(out + ' ', false); }
     })
   );
