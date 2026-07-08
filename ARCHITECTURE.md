@@ -39,6 +39,12 @@
   Ctrl+V도 Cmd+V와 같은 결과가 된다 (이쪽은 xclip 경유의 직접 첨부).
   (참고: 데몬 환경변수 `SSH_CLAUDE_XCLIP_PATH_SUFFIX=":1"`을 주면 Cmd+V 붙여넣기도 경로
   텍스트로 남는다 — `:1`이 붙으면 존재하지 않는 파일명이 되어 변환 검사를 피함.)
+- **이미지 파일 복사 & 여러 장**: 스크린샷(클립보드 이미지 데이터) 외에, Finder에서 이미지
+  파일을 복사(⌘C)해도 데몬이 잡는다. 클립보드의 파일 URL을 `pasteboardItems`로 **전부** 읽어
+  (기존엔 첫 항목만) 여러 장을 한꺼번에 서버로 올리고 경로를 여러 줄로 병기한다 → ⌘⇧V가
+  경로를 모두 타이핑. 지원 포맷은 **실측으로 확인된 png·jpg·jpeg만** (`IMG_EXTS`) — heic는
+  Claude Code가 첨부하지 않아 제외했다. 단, Ctrl+V(가짜 xclip 직접첨부)는 `clip-*.png`+IEND
+  검사라 **PNG 한 장**만 되고, jpg/jpeg·여러 장은 경로 채널(⌘V·⌘⇧V)로만 동작한다.
 - 텍스트 클립보드는 이 도구와 무관 — 터미널이 직접 붙여넣으므로 원래대로 동작.
 
 ## 검증 (순서대로, 어디서 실행하는지 주의)
@@ -101,4 +107,5 @@ xclip -selection clipboard -t image/png -o | file -    # → PNG image data
 - 공용 `/tmp`라 다른 계정도 파일을 볼 수 있다 — 민감 화면 유의.
 - 가짜 xclip은 Claude Code의 내부 구현(xclip 호출 규격)에 기대므로, Claude Code 업데이트로
   깨질 수 있다. 깨지면 `xclip -selection clipboard -t TARGETS -o`부터 다시 진단.
-- macOS 전용, 이미지(PNG)만.
+- macOS 전용. 지원 포맷은 실측 확인된 png·jpg·jpeg (heic는 Claude Code 미첨부로 제외).
+  Ctrl+V 직접첨부는 PNG 한 장 전용, jpg/jpeg·여러 장은 경로 채널(⌘V·⌘⇧V)로만.

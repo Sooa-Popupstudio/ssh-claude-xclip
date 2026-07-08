@@ -20,8 +20,9 @@ import time
 REMOTE = os.environ.get("SSH_CLAUDE_XCLIP_REMOTE", "popup-server")
 PATH_SUFFIX = os.environ.get("SSH_CLAUDE_XCLIP_PATH_SUFFIX", "")
 
-# Finder에서 복사(⌘C)한 "이미지 파일"만 취급 — 이 확장자들만 업로드 대상
-IMG_EXTS = (".png", ".jpg", ".jpeg", ".gif", ".bmp", ".tiff", ".tif", ".webp", ".heic", ".heif")
+# Finder에서 복사(⌘C)한 "이미지 파일"만 취급 — 이 확장자들만 업로드 대상.
+# 실측으로 Claude Code 첨부가 확인된 포맷만 둔다 (png/jpg 확인, heic는 미첨부라 제외).
+IMG_EXTS = (".png", ".jpg", ".jpeg")
 
 # ── JXA 조각들 ──────────────────────────────────────────────
 JXA_COUNT = "ObjC.import('AppKit'); $.NSPasteboard.generalPasteboard.changeCount"
