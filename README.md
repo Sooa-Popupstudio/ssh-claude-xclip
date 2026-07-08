@@ -22,9 +22,6 @@
 별칭이 `popup-server`가 아니면 plist 설치 후 `EnvironmentVariables`에
 `SSH_CLAUDE_XCLIP_REMOTE=<별칭>`을 추가한다.
 
-> 같은 서버(popup-server)를 쓰는 팀원은 git 없이 서버 원본에서 바로 설치해도 된다 —
-> [local-readme.md](local-readme.md) 참고.
-
 ```bash
 # ── 맥에서 (한번에 복사 후 붙여넣은 후 enter) ──────────────
 git clone https://github.com/Sooa-Popupstudio/ssh-claude-xclip.git /tmp/ssh-claude-xclip
