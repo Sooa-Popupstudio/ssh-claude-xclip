@@ -33,7 +33,7 @@ Host popup-server
     HostName 43.200.38.93
 ```
 
-**1) 맥에서**
+**1) 로컬에서**
 
 ```bash
 git clone https://github.com/Sooa-Popupstudio/ssh-claude-xclip.git /tmp/ssh-claude-xclip
