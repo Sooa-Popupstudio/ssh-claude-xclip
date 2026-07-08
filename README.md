@@ -18,11 +18,32 @@
 
 ## 설치법
 
-전제: 맥 `~/.ssh/config`에 서버 별칭이 있고 키 인증으로 접속 가능.
-별칭이 `popup-server`가 아니면 plist 설치 후 `EnvironmentVariables`에
-`SSH_CLAUDE_XCLIP_REMOTE=<별칭>`을 추가한다.
+**0) SSH 별칭 등록 (맥에서, 최초 1회)**
 
-**맥에서**
+맥 `~/.ssh/config`에 서버가 반드시 `popup-server`라는 별칭으로 등록되어 있어야 한다.
+
+```bash
+code ~/.ssh/config
+```
+
+열린 파일에 아래를 추가하고 저장 (`User`는 본인의 **서버 계정명**):
+
+```
+Host popup-server
+HostName 43.200.38.93
+User 본인계정명
+```
+
+확인 — 아래가 **아무것도 묻지 않고** `ok`를 출력해야 한다:
+
+```bash
+ssh popup-server "echo ok"
+```
+
+(최초 접속의 yes/no 질문은 한 번 `yes` 해주면 되고, 비밀번호를 물어보면
+키 인증이 안 된 것 — 서버 관리자에게 키 등록을 요청할 것.)
+
+**1) 맥에서**
 
 ```bash
 git clone https://github.com/Sooa-Popupstudio/ssh-claude-xclip.git /tmp/ssh-claude-xclip
@@ -36,7 +57,7 @@ launchctl load ~/Library/LaunchAgents/ai.popup.ssh-claude-xclip.plist
 cp -r ssh-claude-xclip-vscode ~/.vscode/extensions/
 ```
 
-**서버에서**
+**2) 서버에서**
 ```bash
 git clone https://github.com/Sooa-Popupstudio/ssh-claude-xclip.git ~/ssh-claude-xclip
 ln -sf ~/ssh-claude-xclip/ssh-claude-xclip-server ~/.local/bin/xclip
