@@ -18,30 +18,20 @@
 
 ## 설치법
 
-**0) SSH 별칭 등록 (맥에서, 최초 1회)**
+**0) SSH 별칭 등록 (맥에서, vscode 상에서 왼쪽 하단에 이미 ssh:popups-server로 설정이 되어 있다면 스킵)**
 
-맥 `~/.ssh/config`에 서버가 반드시 `popup-server`라는 별칭으로 등록되어 있어야 한다.
+맥 `~/.ssh/config`에 서버가 `popup-server`라는 별칭으로 등록되어 있어야 한다.
 
 ```bash
 code ~/.ssh/config
 ```
 
-열린 파일에 아래를 추가하고 저장 (`User`는 본인의 **서버 계정명**):
+열린 파일에 Host 부분을 popup-server로 저장한다
 
 ```
 Host popup-server
-HostName 43.200.38.93
-User 본인계정명
+    HostName 43.200.38.93
 ```
-
-확인 — 아래가 **아무것도 묻지 않고** `ok`를 출력해야 한다:
-
-```bash
-ssh popup-server "echo ok"
-```
-
-(최초 접속의 yes/no 질문은 한 번 `yes` 해주면 되고, 비밀번호를 물어보면
-키 인증이 안 된 것 — 서버 관리자에게 키 등록을 요청할 것.)
 
 **1) 맥에서**
 
