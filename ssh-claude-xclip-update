@@ -21,13 +21,13 @@ if [ "$(uname)" = "Darwin" ]; then
   plist=~/Library/LaunchAgents/ai.popup.ssh-claude-xclip.plist
   launchctl unload "$plist" 2>/dev/null || true
   launchctl load "$plist"
-  echo "✅ 맥 업데이트 완료. VS Code에서 'Developer: Reload Window'로 확장까지 반영하세요."
+  echo "✅ 업데이트 완료."
 else
   # ── 서버: xclip이 clone을 가리키는 심링크라 pull만 하면 끝 ──
   dir="$HOME/ssh-claude-xclip"
   if [ -d "$dir/.git" ]; then
     git -C "$dir" pull -q --ff-only
-    echo "✅ 서버 업데이트 완료 ($dir)."
+    echo "✅ 업데이트 완료 ($dir)."
   else
     echo "⚠️  서버 clone($dir)이 없습니다. README 설치법(2)대로 clone 후 심링크하세요."
     exit 1
